@@ -29,9 +29,15 @@ dataset_name = os.path.basename(sys.argv[1])[:-4]
 array = dataset.values
 X = array[:,0:-1].astype(float)
 Y = array[:,-1]
-validation_size = 0.20
 seed = 7
-X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size, random_state=seed)
+X_train, Y_train = X, Y
+
+"""validation_size = 0.20
+X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size, random_state=seed)"""
+
+print(X_train.shape)
+print(Y_train.shape)
+
 
 # Evaluate Algorithms
 
@@ -44,7 +50,7 @@ scoring = 'accuracy'
 models = []
 models.append(('LR', LogisticRegression()))
 models.append(('LDA', LinearDiscriminantAnalysis()))
-models.append(('QDA', QuadraticDiscriminantAnalysis()))
+#models.append(('QDA', QuadraticDiscriminantAnalysis()))
 models.append(('KNN', KNeighborsClassifier()))
 models.append(('CART', DecisionTreeClassifier()))
 models.append(('NB', GaussianNB()))
@@ -57,10 +63,10 @@ results = []
 names = []
 msgs = []
 for name, model in models:
-    best_res = 0
+    best_res = -1
     best_cv_results = []
     print(name)
-    for _ in range(20):
+    for _ in range(50):
         #kfold = KFold(n_splits=num_folds, random_state=seed)
         kfold = KFold(n_splits=num_folds)
         cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
