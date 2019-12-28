@@ -1,0 +1,53 @@
+--- quantitative:
+age
+anciente
+mtrejet
+nbopguic
+moycred3
+aveparmo
+endette
+engagemt
+engagemc
+engagemm
+nbcptvue
+moysold3
+moycredit
+agemvt
+nbop
+mtfactur
+engageml
+nbvie
+mtvie
+nbeparmo
+mteparmo
+nbeparlo
+mteparlo
+nblivret
+mtlivret
+nbeparlt
+mteplrlt
+nbeparte
+nbbon
+mtbon
+nbpaiecb
+nbcb
+nbcbptar
+avtscpte
+aveparfi
+nbjdebit
+
+
+--- qualitative:
+
+- nominal:
+
+departem
+ptvente
+sexe
+sitfamil
+csp
+sexer
+
+
+- ordinal:
+codeqlt

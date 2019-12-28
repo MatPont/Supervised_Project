@@ -2,12 +2,8 @@ import sys
 import os
 from matplotlib import pyplot
 from pandas import read_csv
-from pandas import set_option
-from pandas.plotting import scatter_matrix
-from sklearn.preprocessing import StandardScaler
+import pandas as pd
 from sklearn.model_selection import train_test_split, KFold, cross_val_score, GridSearchCV
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -18,14 +14,14 @@ from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, Ran
 from sklearn.ensemble import ExtraTreesClassifier
 
 # Load dataset
-sep = "\t" if sys.argv[1][-3:] == "txt" else "," # specific processing to our project
-print(sep)
-dataset = read_csv(sys.argv[1], header=None, sep=sep)
+#dataset = read_csv(sys.argv[1], header=None, sep="\t")
+dataset = read_csv(sys.argv[1], sep=",")
 print(dataset.shape)
 dataset_name = os.path.basename(sys.argv[1])[:-4]
 
+quali_names = ["departem", "ptvente", "sitfamil", "csp", "sexer", "codeqlt"]
+dataset = dataset.drop(columns=quali_names)
 
-# Split-out validation dataset
 array = dataset.values
 X = array[:,0:-1].astype(float)
 Y = array[:,-1]
@@ -45,12 +41,13 @@ print(Y_train.shape)
 num_folds = 10
 seed = 7
 scoring = 'accuracy'
+scoring = 'roc_auc'
 
 # Spot Check Algorithms
 models = []
 models.append(('LR', LogisticRegression()))
 models.append(('LDA', LinearDiscriminantAnalysis()))
-#models.append(('QDA', QuadraticDiscriminantAnalysis()))
+models.append(('QDA', QuadraticDiscriminantAnalysis()))
 models.append(('KNN', KNeighborsClassifier()))
 models.append(('CART', DecisionTreeClassifier()))
 models.append(('NB', GaussianNB()))
