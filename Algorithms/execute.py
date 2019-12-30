@@ -3,7 +3,7 @@ import os
 from matplotlib import pyplot
 from pandas import read_csv
 import pandas as pd
-from sklearn.model_selection import train_test_split, KFold, cross_val_score, GridSearchCV
+from sklearn.model_selection import KFold, cross_val_score, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -13,7 +13,11 @@ from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 
+
+
+#####################
 # Load dataset
+#####################
 #dataset = read_csv(sys.argv[1], header=None, sep="\t")
 dataset = read_csv(sys.argv[1], sep=",")
 print(dataset.shape)
@@ -28,20 +32,19 @@ Y = array[:,-1]
 seed = 7
 X_train, Y_train = X, Y
 
-"""validation_size = 0.20
-X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size, random_state=seed)"""
-
 print(X_train.shape)
 print(Y_train.shape)
 
 
+
+#####################
 # Evaluate Algorithms
+#####################
 
 # Test options and evaluation metric
 num_folds = 10
 seed = 7
 scoring = 'accuracy'
-scoring = 'roc_auc'
 
 # Spot Check Algorithms
 models = []
@@ -65,7 +68,8 @@ for name, model in models:
     print(name)
     for _ in range(50):
         #kfold = KFold(n_splits=num_folds, random_state=seed)
-        kfold = KFold(n_splits=num_folds)
+        #kfold = KFold(n_splits=num_folds)
+        kfold = StratifiedKFold(n_splits=num_folds)
         cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
         if cv_results.mean() > best_res:
             best_res = cv_results.mean()            
@@ -78,8 +82,12 @@ for name, model in models:
     
 for msg in msgs:
     print(msg)
+
+
     
+#####################    
 # Compare Algorithms
+#####################
 fig = pyplot.figure()
 fig.suptitle(dataset_name)
 ax = fig.add_subplot(111)
