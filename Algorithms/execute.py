@@ -1,19 +1,28 @@
 import sys
 import os
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
 from pandas import read_csv
 import pandas as pd
-from sklearn.model_selection import KFold, cross_val_score, StratifiedKFold
+from sklearn.model_selection import KFold, cross_val_score, StratifiedKFold, cross_val_predict
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
-from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
+from imblearn.under_sampling import ClusterCentroids, RandomUnderSampler
+from imblearn.under_sampling import NearMiss, NeighbourhoodCleaningRule
+from sklearn import preprocessing
+from sklearn.metrics import roc_curve, roc_auc_score
 
 
+under_sampling = RandomUnderSampler()
+under_sampling = ClusterCentroids()
+under_sampling = NearMiss()
+#under_sampling = NeighbourhoodCleaningRule()
 
 #####################
 # Load dataset
@@ -54,7 +63,7 @@ models.append(('QDA', QuadraticDiscriminantAnalysis()))
 models.append(('KNN', KNeighborsClassifier()))
 models.append(('CART', DecisionTreeClassifier()))
 models.append(('NB', GaussianNB()))
-models.append(('SVM', SVC()))
+models.append(('SVM', SVC(probability=True)))
 models.append(('AB', AdaBoostClassifier()))
 models.append(('GBM', GradientBoostingClassifier()))
 models.append(('RF', RandomForestClassifier()))
@@ -62,23 +71,29 @@ models.append(('ET', ExtraTreesClassifier()))
 results = []
 names = []
 msgs = []
+best_prediction = {}
 for name, model in models:
     best_res = -1
     best_cv_results = []
+    y_probas_pred = []
     print(name)
     for _ in range(50):
+        X_train, Y_train = under_sampling.fit_resample(X, Y)
+        X_train = preprocessing.scale(X_train)
         #kfold = KFold(n_splits=num_folds, random_state=seed)
         #kfold = KFold(n_splits=num_folds)
         kfold = StratifiedKFold(n_splits=num_folds)
         cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
         if cv_results.mean() > best_res:
-            best_res = cv_results.mean()            
+            best_res = cv_results.mean()  
+            y_probas_pred = cross_val_predict(model,X_train, Y_train, cv=kfold, method="predict_proba")
             best_cv_results = cv_results 
             print(best_res)            
     results.append(best_cv_results)
     names.append(name)
     msg = "%5s: %f (%f)" % (name, best_cv_results.mean(), best_cv_results.std())
     msgs.append(msg)
+    best_prediction[name] = y_probas_pred
     
 for msg in msgs:
     print(msg)
@@ -88,10 +103,30 @@ for msg in msgs:
 #####################    
 # Compare Algorithms
 #####################
-fig = pyplot.figure()
+fig = plt.figure()
 fig.suptitle(dataset_name)
 ax = fig.add_subplot(111)
-pyplot.boxplot(results)
+plt.boxplot(results)
 ax.set_xticklabels(names)
-#pyplot.show()
-pyplot.savefig("../Results/"+dataset_name+"_compare.svg", format="svg")
+#plt.show()
+plt.savefig("../Results/"+dataset_name+"_compare.svg", format="svg")
+plt.close()
+
+
+#####################    
+# Roc Curves
+#####################
+def plot_roc_curve(fpr, tpr, label=None):
+    plt.plot(fpr, tpr, linewidth=2, label=label)
+    plt.plot([0,1], [0,1], 'k--')
+
+for model_name in best_prediction:
+  fpr, tpr, thresholds = roc_curve(Y_train,best_prediction[model_name][:,1])
+  plot_roc_curve(fpr,tpr, label=model_name)
+
+plt.legend()
+plt.title('ROC')
+plt.savefig("roc.svg", format="svg")
+
+for model_name in best_prediction:
+    print(model_name, ": ", roc_auc_score(Y_train, best_prediction[model_name][:,1]))
