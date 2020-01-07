@@ -20,7 +20,7 @@ from sklearn.metrics import roc_curve, roc_auc_score
 
 
 under_sampling = RandomUnderSampler()
-under_sampling = ClusterCentroids()
+#under_sampling = ClusterCentroids()
 under_sampling = NearMiss()
 #under_sampling = NeighbourhoodCleaningRule()
 
@@ -28,7 +28,7 @@ under_sampling = NearMiss()
 # Load dataset
 #####################
 #dataset = read_csv(sys.argv[1], header=None, sep="\t")
-dataset = read_csv(sys.argv[1], sep=",")
+dataset = read_csv(sys.argv[1], sep=",", index_col=0)
 print(dataset.shape)
 dataset_name = os.path.basename(sys.argv[1])[:-4]
 

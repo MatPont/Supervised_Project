@@ -1,6 +1,7 @@
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-library(caret)
+#library(caret)
+library(corrplot)
 
 
 
@@ -92,6 +93,22 @@ write.csv(file = "../Datasets/VisaPremier_cleaned.txt", visa_cleaned)
 #####################
 # Preliminary Study
 #####################
+
+visa_cleaned <- read.csv(file = "../Datasets/VisaPremier_cleaned.txt", row.names=1)
+dim(visa_cleaned)
+data_x <- visa_cleaned[, -dim(visa_cleaned)[2]]
+data_y <- visa_cleaned[, dim(visa_cleaned)[2]]
+
+quali_names <- c("departem", "ptvente", "sexe", "sitfamil", "csp", "sexer", "codeqlt")
+quali_sup_indexes <- c(1:length(names(visa_cleaned)))[names(visa_cleaned) %in% quali_names]
+
+mycor <- cor(data_x[,-quali_sup_indexes])
+corrplot::corrplot(mycor, hclust.method = "average", type="upper", diag=F)
+
+diag(mycor) <- 0
+t <- which(abs(mycor) > 0.75, arr.ind=T)
+t <- cbind(row.names(mycor[t[,1], ]), colnames(mycor[, t[,2]]), mycor[t])
+t[order(as.numeric(t[,3])), ]
 
 #variables <- c("nbop", "mteparmo", "codeqlt", "nbcb", "ndjdebit")
 
