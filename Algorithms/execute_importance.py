@@ -60,6 +60,21 @@ models.append(('ET', ExtraTreesClassifier()))
 
 num_it = 50
 
+all_importance = np.zeros(len(dataset.columns)-1)
+
+def create_plot(overall_importance, name):
+    importance_order = np.flip(np.argsort(overall_importance))
+    ordered_importance = overall_importance[importance_order]
+    ordered_features = dataset.columns[importance_order]       
+    
+    print(ordered_features)
+    print(ordered_importance)
+    
+    plt.bar(ordered_features[:7], ordered_importance[:7])
+    plt.xticks(rotation=17, fontsize=14)
+    plt.savefig("../Results/"+dataset_name+"_"+name+"_features.svg", format="svg")
+    plt.close()
+
 for name, model in models:
     print("=====================")
     print(name)
@@ -74,16 +89,12 @@ for name, model in models:
         model.fit(X_train, Y_train)
        
         overall_importance += model.feature_importances_
-       
+    
     overall_importance /= num_it
-    importance_order = np.flip(np.argsort(overall_importance))
-    ordered_importance = overall_importance[importance_order]
-    ordered_features = dataset.columns[importance_order]       
+    all_importance += overall_importance           
     
-    print(ordered_features)
-    print(ordered_importance)
+    create_plot(overall_importance, name)
     
-    plt.bar(ordered_features[:7], ordered_importance[:7])
-    plt.xticks(rotation=17, fontsize=14)
-    plt.savefig("../Results/"+dataset_name+"_"+name+"_features.svg", format="svg")
-    plt.close()
+print("=====================")
+all_importance /= len(models)
+create_plot(all_importance, "average")
