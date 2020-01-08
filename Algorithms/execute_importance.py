@@ -58,12 +58,16 @@ models.append(('GBM', GradientBoostingClassifier()))
 models.append(('RF', RandomForestClassifier()))
 models.append(('ET', ExtraTreesClassifier()))
 
+num_it = 50
+
 for name, model in models:
+    print("=====================")
     print(name)
+    print("=====================")    
     
     overall_importance = np.zeros(len(dataset.columns)-1)
     
-    for _ in range(50):
+    for _ in range(num_it):
         X_train, Y_train = under_sampling.fit_resample(X, Y)
         X_train = preprocessing.scale(X_train)
         
@@ -71,9 +75,15 @@ for name, model in models:
        
         overall_importance += model.feature_importances_
        
+    overall_importance /= num_it
     importance_order = np.flip(np.argsort(overall_importance))
     ordered_importance = overall_importance[importance_order]
     ordered_features = dataset.columns[importance_order]       
     
     print(ordered_features)
     print(ordered_importance)
+    
+    plt.bar(ordered_features[:7], ordered_importance[:7])
+    plt.xticks(rotation=17, fontsize=14)
+    plt.savefig("../Results/"+dataset_name+"_"+name+"_features.svg", format="svg")
+    plt.close()
