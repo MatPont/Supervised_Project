@@ -21,19 +21,19 @@ from sklearn.metrics import roc_curve, roc_auc_score
 
 under_sampling = RandomUnderSampler()
 #under_sampling = ClusterCentroids()
-under_sampling = NearMiss()
+#under_sampling = NearMiss()
 #under_sampling = NeighbourhoodCleaningRule()
 
 #####################
 # Load dataset
 #####################
-#dataset = read_csv(sys.argv[1], header=None, sep="\t")
-dataset = read_csv(sys.argv[1], sep=",", index_col=0)
+dataset = read_csv(sys.argv[1], header=None, sep="\t")
+#dataset = read_csv(sys.argv[1], sep=",", index_col=0)
 print(dataset.shape)
 dataset_name = os.path.basename(sys.argv[1])[:-4]
 
-quali_names = ["departem", "ptvente", "sitfamil", "csp", "sexer", "codeqlt"]
-dataset = dataset.drop(columns=quali_names)
+"""quali_names = ["departem", "ptvente", "sitfamil", "csp", "sexer", "codeqlt"]
+dataset = dataset.drop(columns=quali_names)"""
 
 #important_features = ["moycred3", "avtscpte", "anciente", "engagemt", "agemvt", "nbcb", "mtfactur", "cartevpr"]
 #important_features = ["moycred3", "avtscpte", "anciente", "engagemt", "agemvt", "cartevpr"]
@@ -42,7 +42,7 @@ dataset = dataset.drop(columns=quali_names)
 
 array = dataset.values
 X = array[:,0:-1].astype(float)
-Y = array[:,-1]
+Y = array[:,-1].astype(int)
 seed = 7
 X_train, Y_train = X, Y
 
@@ -84,7 +84,7 @@ for name, model in models:
     print(name)
     for _ in range(50):
         X_train, Y_train = under_sampling.fit_resample(X, Y)
-        X_train = preprocessing.scale(X_train)
+        X_train = preprocessing.scale(X_train)        
         #kfold = KFold(n_splits=num_folds, random_state=seed)
         #kfold = KFold(n_splits=num_folds)
         kfold = StratifiedKFold(n_splits=num_folds)
