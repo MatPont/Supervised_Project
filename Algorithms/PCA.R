@@ -22,13 +22,14 @@ quali_sup_indexes <- c(1:length(names(visa_cleaned)))[names(visa_cleaned) %in% q
 #ind_sup_indexes <- c(1:length(rownames(visa_cleaned)))[rownames(visa_cleaned) == "442153"]
 label_col <- as.factor(data_y)
 
+important_features <- c("moycred3", "avtscpte", "anciente", "engagemt", "agemvt", "nbcb", "mtfactur")
 
 
 #####################
 # PCA
 #####################
 resPCA <- PCA(data_x, quali.sup=quali_sup_indexes)
-#resPCA <- PCA(data_x)
+resPCA <- PCA(data_x)
 
 fviz_pca_ind(resPCA, col.ind = label_col, label = "none", addEllipses = TRUE, xlim=c(-7.5,20))
 fviz_pca_var(resPCA, repel = TRUE)
@@ -51,6 +52,8 @@ for(quali in quali_todo){
 }
 
 famd_data_x
+
+#famd_data_x[,! names(famd_data_x) %in% quali_todo] <- scale(famd_data_x[,! names(famd_data_x) %in% quali_todo])
 
 resFAMD <- FAMD(famd_data_x)
 resFAMD$quali.var

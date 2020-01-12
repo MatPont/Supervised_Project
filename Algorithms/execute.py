@@ -35,6 +35,11 @@ dataset_name = os.path.basename(sys.argv[1])[:-4]
 quali_names = ["departem", "ptvente", "sitfamil", "csp", "sexer", "codeqlt"]
 dataset = dataset.drop(columns=quali_names)
 
+#important_features = ["moycred3", "avtscpte", "anciente", "engagemt", "agemvt", "nbcb", "mtfactur", "cartevpr"]
+#important_features = ["moycred3", "avtscpte", "anciente", "engagemt", "agemvt", "cartevpr"]
+
+#dataset = dataset[important_features]
+
 array = dataset.values
 X = array[:,0:-1].astype(float)
 Y = array[:,-1]
